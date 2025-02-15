@@ -20,6 +20,7 @@ class Player {
         bool hit = false;
         float hit_timer = HIT_TIME;
         float score = 0.0;
+        int sprite_index = 5;
         Texture2D texture;
         Texture2D state_texture;
     

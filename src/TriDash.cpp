@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
         return -1;
     }
     // Load Player
-    Texture2D player_tex = LoadTexture("images/PlayerIM.png");
+    Texture2D player_tex = LoadTexture("images/PlayerSS.png");
     if (player_tex.id == 0) {
         cout << "Failed to load Player\n";
         return -1;
@@ -161,8 +161,6 @@ int main(int argc, char* argv[]){
 
             player.update(obstacleLine, game_state);
             obstacleLine.update();
-
-            
         }
         else if (game_state == 2) { // Game Over
             BeginDrawing();

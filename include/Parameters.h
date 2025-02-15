@@ -34,7 +34,8 @@ const int PLAYER_POSITION_Y = SCREEN_HEIGHT*4/5;
 const int MAX_LIVES = 3;
 const int HIT_TIME = 1; // 1 second
 
-const int STEP_WIDTH = (LANE_WIDTH+SEPARATOR_WIDTH)/10;
+const int NUM_STEPS = 10;
+const int STEP_WIDTH = (LANE_WIDTH+SEPARATOR_WIDTH)/NUM_STEPS;
 const int JUMP_STEPS = 12;
 
 const int OBSTACLE_NUM = 3;

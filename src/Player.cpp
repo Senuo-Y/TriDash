@@ -73,11 +73,19 @@ int Player::getLane() {
 void Player::stepLeft() {
     setPosition(position.first-STEP_WIDTH, position.second);
     distance += STEP_WIDTH;
+    if (distance%(2*STEP_WIDTH) == 0) {
+        --sprite_index;
+        cout << sprite_index << endl;
+    }
 }
 
 void Player::stepRight() {
     setPosition(position.first+STEP_WIDTH, position.second);
     distance += STEP_WIDTH;
+    if (distance%(2*STEP_WIDTH) == 0) {
+        ++sprite_index;
+        cout << sprite_index << endl;
+    }
 }
 
 bool Player::moveComplete() {
@@ -147,7 +155,7 @@ void Player::update(ObstacleLine obstacle_line, int &game_state) {
         if ((obstacle_line.isActive(i)) && (getLane() == obstacle_line.getObstacle(i).getLane())) {
             if ((PLAYER_POSITION_Y + PLAYER_HEIGHT/2) <= obstacle_line.getObstacle(i).getPosition().second && obstacle_line.getObstacle(i).getPosition().second <= (PLAYER_POSITION_Y + PLAYER_HEIGHT)) {
                 if (!jumping) { // not jumping over obstacle
-                    if (!hit) {
+                    if (!hit) { // not already hit
                         --lives;
                         hit = true;
                     }
@@ -183,7 +191,7 @@ void Player::update(ObstacleLine obstacle_line, int &game_state) {
 }
 
 void Player::draw() {
-    DrawTexturePro(texture, (Rectangle){(float)texture.width, 0, (float)texture.width, (float)texture.height}, (Rectangle){position.first+PLAYER_WIDTH/2-texture.width/2, position.second, texture.width, texture.height}, (Vector2){0, 0}, 0, White);
+    DrawTexturePro(texture, (Rectangle){(float)sprite_index*texture.width/11, 0, (float)texture.width/11, (float)texture.height}, (Rectangle){position.first+PLAYER_WIDTH/2-(texture.width/11)/2, position.second, texture.width/11, texture.height}, (Vector2){0, 0}, 0, White);
     DrawTexturePro(state_texture, (Rectangle){(MAX_LIVES-lives)*state_texture.width/3, 0, (float)state_texture.width/3, (float)state_texture.height}, (Rectangle){0, SCREEN_HEIGHT/20, state_texture.width/3, state_texture.height}, (Vector2){0, 0}, 0, White);
     DrawText(TextFormat("%d", int(score)), SCREEN_WIDTH*8/9-MeasureTextEx(GetFontDefault(), TextFormat("%d", int(score)), 70, 0).x, SCREEN_HEIGHT/70, 70, White);
 }
