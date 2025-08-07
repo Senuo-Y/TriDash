@@ -14,6 +14,8 @@ class Button {
         bool clicked = false;
         Texture2D texture;
         Vector2 position;
+        Sound sound_hovered;
+        Sound sound_clicked;
     
     public:
         Button();

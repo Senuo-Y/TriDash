@@ -13,6 +13,7 @@ class Player {
         pair<int, int> position;
         bool moving_left = false;
         bool moving_right = false;
+        int lane = 1;
         int distance = 0;
         bool jumping = false;
         bool falling = false;
@@ -23,6 +24,9 @@ class Player {
         int sprite_index = 5;
         Texture2D texture;
         Texture2D state_texture;
+        Sound sound_hit;
+        Sound sound_dead;
+        Sound sound_slide;
     
     public:
         Player(Texture2D _texture, Texture2D _state_texture);
@@ -57,7 +61,7 @@ class Player {
 
         bool moveComplete();
 
-        void update(ObstacleLine obstacle_line, int &game_state);
+        void update(ObstacleLine obstacle_line, int &game_state, int socket_lane);
 
         void draw();
 };

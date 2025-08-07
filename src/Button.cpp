@@ -12,6 +12,8 @@ Button::Button(string _name, bool _hovered, Texture2D _texture, Vector2 _positio
     hovered = _hovered;
     texture = _texture;
     position = _position;
+    sound_hovered = LoadSound("sfx/ButtonHover.wav");
+    sound_clicked = LoadSound("sfx/ButtonClick.wav");
 }
 
 string Button::getName() {
@@ -36,14 +38,28 @@ void Button::setClicked(bool _clicked) {
 
 void Button::update(int &game_state) {
     Vector2 mouse_pos = GetMousePosition();
-    if (position.x-texture.width/4 < mouse_pos.x && mouse_pos.x < position.x+texture.width/4 && position.y-texture.height/4 < mouse_pos.y && mouse_pos.y < position.y+texture.height/4) {
-        hovered = true;
+    if (position.x-texture.width/4 < mouse_pos.x && mouse_pos.x < position.x+texture.width/4 && position.y-texture.height/2 < mouse_pos.y && mouse_pos.y < position.y+texture.height/2) {
+
+        if (!hovered) {
+            PlaySound(sound_hovered);
+            hovered = true;
+        }
+
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            if (name == "Play" || name == "Try Again") {
-                game_state = 1;
-            }
-            else if (name == "Quit") {
+            if (name == "Quit") {
                 game_state = -1;
+            }
+            else {
+                PlaySound(sound_clicked); // No Sound for Quit Button when Clicked
+                if (name == "Play" || name == "Try Again") {
+                    game_state = 1;
+                }
+                else if (name == "Normal Mode") {
+                    game_state = 2;
+                }
+                else if (name == "Vision Mode") {
+                    game_state = 3;
+                }
             }
         }
     }

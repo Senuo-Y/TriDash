@@ -24,14 +24,13 @@ Menu::Menu(Texture2D _logo_tex, vector<Button> _buttons) {
 }*/
 
 void Menu::update(int &game_state) {
-    Vector2 mouse_pos = GetMousePosition();
     for (int i = 0; i < buttons.size(); ++i) {
         buttons[i].update(game_state);
     }
 }
 
 void Menu::draw(int index) {
-    DrawTexturePro(logo_tex, (Rectangle){index*logo_tex.width/2, 0, logo_tex.width/2, logo_tex.height}, (Rectangle){SCREEN_WIDTH/2-logo_tex.width/4, SCREEN_HEIGHT/4-logo_tex.height/2, logo_tex.width/2, logo_tex.height}, (Vector2){0, 0}, 0, White);
+    DrawTexturePro(logo_tex, (Rectangle){(float)index*logo_tex.width/2, 0, (float)logo_tex.width/2, (float)logo_tex.height}, (Rectangle){(float)SCREEN_WIDTH/2-logo_tex.width/4, (float)SCREEN_HEIGHT/4-logo_tex.height/2, (float)logo_tex.width/2, (float)logo_tex.height}, (Vector2){0, 0}, 0, White);
     for (int i = 0; i < buttons.size(); ++i) {
         buttons[i].draw();
     }

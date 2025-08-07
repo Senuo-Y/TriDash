@@ -6,7 +6,7 @@ Well hello! This a little personal game that I decided to make, using C++ and ra
 
 Here is a picture of the game (it's not a AAA game so one screenshot is enough):
 
-![alt text](images/Gameplay.png)
+![alt text](assets/Gameplay.png)
 
 ## "What tools did you use to make this game?"
 

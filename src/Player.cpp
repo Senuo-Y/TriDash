@@ -10,6 +10,9 @@ Player::Player(Texture2D _texture, Texture2D _state_texture) {
     state_texture = _state_texture;
     position.first = PLAYER_POSITION_X_MIDDLE_LANE;
     position.second = PLAYER_POSITION_Y;
+    sound_hit =LoadSound("sfx/PlayerHit.wav");
+    sound_dead = LoadSound("sfx/PlayerDead.wav");
+    sound_slide = LoadSound("sfx/PlayerSlide.wav");
 }
 
 void Player::setPosition(int x, int y) {
@@ -75,7 +78,6 @@ void Player::stepLeft() {
     distance += STEP_WIDTH;
     if (distance%(2*STEP_WIDTH) == 0) {
         --sprite_index;
-        cout << sprite_index << endl;
     }
 }
 
@@ -84,7 +86,6 @@ void Player::stepRight() {
     distance += STEP_WIDTH;
     if (distance%(2*STEP_WIDTH) == 0) {
         ++sprite_index;
-        cout << sprite_index << endl;
     }
 }
 
@@ -92,7 +93,7 @@ bool Player::moveComplete() {
     return (distance >= LANE_WIDTH+SEPARATOR_WIDTH);
 }
 
-void Player::update(ObstacleLine obstacle_line, int &game_state) {
+void Player::update(ObstacleLine obstacle_line, int &game_state, int socket_lane) {
     score += 0.25;
 
     if (jumping) {
@@ -156,7 +157,8 @@ void Player::update(ObstacleLine obstacle_line, int &game_state) {
             if ((PLAYER_POSITION_Y + PLAYER_HEIGHT/2) <= obstacle_line.getObstacle(i).getPosition().second && obstacle_line.getObstacle(i).getPosition().second <= (PLAYER_POSITION_Y + PLAYER_HEIGHT)) {
                 if (!jumping) { // not jumping over obstacle
                     if (!hit) { // not already hit
-                        --lives;
+                        PlaySound(sound_hit);
+                        //--lives;
                         hit = true;
                     }
                 }
@@ -173,20 +175,40 @@ void Player::update(ObstacleLine obstacle_line, int &game_state) {
     }
 
     if (lives == 0) {
-        game_state = 2;
+        PlaySound(sound_dead);
+        game_state = 4;
         lives = MAX_LIVES;
         score = 0.0;
         position.first = PLAYER_POSITION_X_MIDDLE_LANE;
+        sprite_index = 5;
     }
 
-    if (IsKeyDown(KEY_LEFT) && !getIsMoving()) {
-        setMovingLeft(true);
+    if (position.first == PLAYER_POSITION_X_LEFT_LANE) {
+        lane = 0;
     }
-    else if (IsKeyDown(KEY_RIGHT) && !getIsMoving()) {
-        setMovingRight(true);
+    else if (position.first == PLAYER_POSITION_X_MIDDLE_LANE) {
+        lane = 1;
     }
-    else if (IsKeyDown(KEY_SPACE) && !getIsMoving()) {
-        setJumping(true);
+    else if (position.first == PLAYER_POSITION_X_RIGHT_LANE) {
+        lane = 2;
+    }
+
+    if (!getIsMoving()) {
+        if (IsKeyDown(KEY_LEFT) || (socket_lane < lane && socket_lane != -1)) {
+            if (lane != 0) { // Not play sound when trying to move left and already in left lane
+                PlaySound(sound_slide);
+            }
+            setMovingLeft(true);
+        }
+        else if (IsKeyDown(KEY_RIGHT) || (socket_lane > lane && socket_lane != -1)) {
+            if (lane != 2) { // Not play sound when trying to move right and already in right lane
+                PlaySound(sound_slide);
+            }
+            setMovingRight(true);
+        }
+        else if (IsKeyDown(KEY_SPACE)) {
+            setJumping(true);
+        }
     }
 }
 
