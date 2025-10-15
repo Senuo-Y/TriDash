@@ -158,7 +158,7 @@ void Player::update(ObstacleLine obstacle_line, int &game_state, int socket_lane
                 if (!jumping) { // not jumping over obstacle
                     if (!hit) { // not already hit
                         PlaySound(sound_hit);
-                        //--lives;
+                        --lives;
                         hit = true;
                     }
                 }

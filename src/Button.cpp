@@ -51,7 +51,10 @@ void Button::update(int &game_state) {
             }
             else {
                 PlaySound(sound_clicked); // No Sound for Quit Button when Clicked
-                if (name == "Play" || name == "Try Again") {
+                if (name == "Back") {
+                    game_state = 0;
+                }
+                else if (name == "Play" || name == "Try Again") {
                     game_state = 1;
                 }
                 else if (name == "Normal Mode") {

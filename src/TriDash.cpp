@@ -157,6 +157,12 @@ int main(int argc, char* argv[]){
         cout << "Failed to load Game Mode Image\n";
         return -1;
     }
+    // Load Back Button
+    Texture2D back_tex = LoadTexture("assets/BackButtonSS.png");
+    if (back_tex.id == 0) {
+        cout << "Failed to load Back Button\n";
+        return -1;
+    }
     // Load Normal Mode Button
     Texture2D normal_mode_tex = LoadTexture("assets/NormalModeSS.png");
     if (normal_mode_tex.id == 0) {
@@ -184,6 +190,7 @@ int main(int argc, char* argv[]){
     menu_buttons.push_back(quit1_button);
     Menu menu(logo_tex, menu_buttons);
 
+    Button back_button("Back", false, back_tex, (Vector2){SCREEN_WIDTH/10, (float)SCREEN_HEIGHT/10});
     Button normal_mode_button("Normal Mode", false, normal_mode_tex, (Vector2){SCREEN_WIDTH/4, (float)SCREEN_HEIGHT*5/9});
     Button vision_mode_button("Vision Mode", false, vision_mode_tex, (Vector2){(float)SCREEN_WIDTH*3/4, (float)SCREEN_HEIGHT*5/9});
 
@@ -235,9 +242,11 @@ int main(int argc, char* argv[]){
                 ClearBackground(HexToColor(0x1E2329));
                 game_mode_source = (RLRectangle){0, 0, (float)game_mode_tex.width, (float)game_mode_tex.height};
                 DrawTexturePro(game_mode_tex, game_mode_source, game_mode_dest, (Vector2){0, 0}, 0, White);
+                back_button.draw();
                 normal_mode_button.draw();
                 vision_mode_button.draw();
 
+                back_button.update(game_state);
                 normal_mode_button.update(game_state);
                 vision_mode_button.update(game_state);
             EndDrawing();
