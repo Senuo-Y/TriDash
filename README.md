@@ -20,7 +20,7 @@ In case you want to try the game, you have made the right choice! I know my game
 You can download the project locally and run it using these commands (make sure you're doing it from the project's main directory):
 
 ```sh
-g++ -std=c++17 -Iinclude -Iraylib/include src/TriDash.cpp src/Button.cpp src/Menu.cpp src/Player.cpp src/Obstacle.cpp src/ObstacleLine.cpp -o build/TriDash.exe -Lraylib/lib -lraylib -lopengl32 -lgdi32 -lwinmm -lws2_32 -static
+g++ -std=c++17 -Iinclude -Iraylib/include src/TriDash.cpp src/Button.cpp src/Menu.cpp src/Player.cpp src/Obstacle.cpp src/ObstacleLine.cpp -o build/TriDash.exe -Lraylib/lib -lraylib -lopengl32 -lgdi32 -lwinmm -lws2_32 -static -w
 ```
 ```sh
 ./build/TriDash.exe

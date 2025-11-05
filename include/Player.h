@@ -63,6 +63,8 @@ class Player {
 
         void update(ObstacleLine obstacle_line, int &game_state, int socket_lane);
 
+        float getScore();
+
         void draw();
 };
 

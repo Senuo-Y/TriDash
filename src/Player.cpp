@@ -176,11 +176,15 @@ void Player::update(ObstacleLine obstacle_line, int &game_state, int socket_lane
 
     if (lives == 0) {
         PlaySound(sound_dead);
-        game_state = 4;
+        game_state = 2;
         lives = MAX_LIVES;
         score = 0.0;
         position.first = PLAYER_POSITION_X_MIDDLE_LANE;
+        lane = 1;
+        distance = 0;
         sprite_index = 5;
+        moving_left = false;
+        moving_right = false;
     }
 
     if (position.first == PLAYER_POSITION_X_LEFT_LANE) {
@@ -212,8 +216,15 @@ void Player::update(ObstacleLine obstacle_line, int &game_state, int socket_lane
     }
 }
 
+float Player::getScore() {
+    return score;
+}
+
 void Player::draw() {
+    // Player
     DrawTexturePro(texture, (Rectangle){(float)sprite_index*texture.width/11, 0, (float)texture.width/11, (float)texture.height}, (Rectangle){position.first+PLAYER_WIDTH/2-(texture.width/11)/2, position.second, texture.width/11, texture.height}, (Vector2){0, 0}, 0, White);
+    // Health
     DrawTexturePro(state_texture, (Rectangle){(MAX_LIVES-lives)*state_texture.width/3, 0, (float)state_texture.width/3, (float)state_texture.height}, (Rectangle){0, SCREEN_HEIGHT/20, state_texture.width/3, state_texture.height}, (Vector2){0, 0}, 0, White);
+    // Score
     DrawText(TextFormat("%d", int(score)), SCREEN_WIDTH*8/9-MeasureTextEx(GetFontDefault(), TextFormat("%d", int(score)), 70, 0).x, SCREEN_HEIGHT/70, 70, White);
 }

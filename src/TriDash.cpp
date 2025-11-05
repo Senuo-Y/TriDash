@@ -175,6 +175,12 @@ int main(int argc, char* argv[]){
         cout << "Failed to load Vision Mode Button\n";
         return -1;
     }
+    // Score Texture
+    Texture2D final_score_tex = LoadTexture("assets/ScoreSprite.png");
+    if (final_score_tex.id == 0) {
+        cout << "Failed to load Score Texture\n";
+        return -1;
+    }
 
     Texture2D frame_texture = {0};
 
@@ -212,9 +218,8 @@ int main(int argc, char* argv[]){
     RLRectangle player_dest;
 
     Player player(player_tex, player_state_tex);
+    int current_score;
 
-    //int obstacle_num = rand() % 3 + 1;
-    int obstacle_num = 3;
     ObstacleLine obstacleLine;
 
     int game_state = 0; // menu
@@ -237,138 +242,44 @@ int main(int argc, char* argv[]){
                 menu.update(game_state);
             EndDrawing();
         }
-        else if (game_state == 1) { // Choose Game Mode
-            BeginDrawing();
-                ClearBackground(HexToColor(0x1E2329));
-                game_mode_source = (RLRectangle){0, 0, (float)game_mode_tex.width, (float)game_mode_tex.height};
-                DrawTexturePro(game_mode_tex, game_mode_source, game_mode_dest, (Vector2){0, 0}, 0, White);
-                back_button.draw();
-                normal_mode_button.draw();
-                vision_mode_button.draw();
-
-                back_button.update(game_state);
-                normal_mode_button.update(game_state);
-                vision_mode_button.update(game_state);
-            EndDrawing();
-        }
-        else if (game_state == 2) { // GAME (Normal Mode)
+        else if (game_state == 1) {
+            // GAME (Normal Mode)
 
             arena_source = (RLRectangle){0, 0, (float)arena_tex.width, (float)arena_tex.height};
             score_source = (RLRectangle){0, 0, (float)score_tex.width, (float)score_tex.height};
 
             BeginDrawing();
-                ClearBackground(HexToColor(0x1E2329));
-                
-                DrawTexturePro(arena_tex, arena_source, arena_dest, (Vector2){0, 0}, 0, White);
-                DrawTexturePro(score_tex, score_source, score_dest, (Vector2){0, 0}, 0, White);
-                obstacleLine.DrawObstacleLine();
-                player.draw();
+            ClearBackground(HexToColor(0x1E2329));
+
+            DrawTexturePro(arena_tex, arena_source, arena_dest, (Vector2){0, 0}, 0, White);
+            DrawTexturePro(score_tex, score_source, score_dest, (Vector2){0, 0}, 0, White);
+            obstacleLine.DrawObstacleLine();
+            player.draw();
             EndDrawing();
 
+            current_score = int(player.getScore());
             player.update(obstacleLine, game_state, -1);
             obstacleLine.update();
         }
-        else if (game_state == 3) {
-            if (sock_state == -1) {
-                socket = connect_to_server();
-                sock_state = 0;
-            }
-            else if (sock_state == 0) {
-                send_request(socket, 'I');           // Send 'I' to ask "Is camera connected?"
-                char response = receive_response(socket); // Get '0' or '1'
-
-                if (response == '1') {
-                    sock_state = 1;
-                }
-
-                BeginDrawing();
-                    ClearBackground(HexToColor(0x1E2329));
-                EndDrawing();
-            }
-            else if (sock_state == 1) {
-                socket = connect_to_server();
-                sock_state = 2;
-            }
-            else if (sock_state == 2) {
-                send_request(socket, 'S');           // Send 'S' to start streaming
-
-                uint32_t net_frame_size;
-                if (!receive_all(socket, (char*)&net_frame_size, sizeof(net_frame_size))) {
-                    break;
-                }
-                int frame_size = ntohl(net_frame_size); // Convert from network (big-endian) to host order
-
-
-                // Allocate buffer to receive the JPEG-encoded frame
-                std::vector<unsigned char> buffer(frame_size);
-                if (!receive_all(socket, (char*)buffer.data(), frame_size))
-                    break; // Exit if failed
-
-                Image img = LoadImageFromMemory(".jpg", buffer.data(), buffer.size());
-                if (img.data == nullptr) continue; // Skip if decode failed
-
-                // Convert Image to Texture2D
-                frame_texture = LoadTextureFromImage(img);
-                UnloadImage(img); // Free Image memory
-
-                BeginDrawing();
-                    ClearBackground(HexToColor(0x1E2329));
-                    DrawTexture(frame_texture, 0, 0, White);
-                EndDrawing();
-            }
-
-
-
-            // float hand_position = -1.0;
-            // int hand_lane = -1;
-            // int result = recv(sock, reinterpret_cast<char*>(&hand_position), float_size, 0);
-            // if (result != SOCKET_ERROR && hand_position >= 0) {
-            //     if (hand_position < 0.33) {
-            //         hand_lane = 0;
-            //     }
-            //     else if (hand_position < 0.66) {
-            //         hand_lane = 1;
-            //     }
-            //     else{
-            //         hand_lane = 2;
-            //     }
-            // }
-            //
-            // arena_source = (RLRectangle){0, 0, (float)arena_tex.width, (float)arena_tex.height};
-            // score_source = (RLRectangle){0, 0, (float)score_tex.width, (float)score_tex.height};
-            // //player_dest = (Rectangle){player.getPosition().first+PLAYER_WIDTH/2-player_tex.width/2, player.getPosition().second, player_tex.width, player_tex.height};
-
-            // BeginDrawing();
-            //     ClearBackground(HexToColor(0x1E2329));
-            //
-            //     DrawTexturePro(arena_tex, arena_source, arena_dest, (Vector2){0, 0}, 0, White);
-            //     DrawTexturePro(score_tex, score_source, score_dest, (Vector2){0, 0}, 0, White);
-            //     obstacleLine.DrawObstacleLine();
-            //     player.draw();
-            //     if (hand_lane >= 0) {
-            //         DrawRectangle(hand_position*SCREEN_WIDTH, 100, 100, 100, Black);
-            //     }
-            // EndDrawing();
-            //
-            // player.update(obstacleLine, game_state, hand_lane);
-            // obstacleLine.update();
-        }
-        else if (game_state == 4) { // Game Over
+        else if (game_state == 2) { // Game Over
             BeginDrawing();
+
                 ClearBackground(HexToColor(0x1E2329));
                 gameover_menu.draw(index);
+                std::string text = TextFormat("Your Score: %d", current_score);
+                Vector2 textSize = MeasureTextEx(GetFontDefault(), text.c_str(), 70, 6);
+                DrawTextEx(GetFontDefault(), text.c_str(), { SCREEN_WIDTH/2 - textSize.x/2, SCREEN_HEIGHT * 4.0f/9.0f }, 70, 6, WHITE);
                 gameover_menu.update(game_state);
+
             EndDrawing();
         }
     }
 
     UnloadTexture(logo_tex);
     UnloadTexture(play_button_tex);
-    //UnloadTexture(options_button_tex);
     UnloadTexture(quit_button_tex);
     UnloadTexture(arena_tex);
     UnloadTexture(player_tex);
     CloseAudioDevice();
     CloseWindow();
-
 }
