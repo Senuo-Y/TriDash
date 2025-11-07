@@ -1,21 +1,6 @@
-// First: avoid name clashes with Windows API
-#if defined(_WIN32)
-    #define WIN32_LEAN_AND_MEAN     // Removes rarely used APIs
-    #define NOGDI                   // Prevents definition of Rectangle() macro
-    #define NODRAWTEXT              // Optional: avoid text-related macros
-    #define NOMINMAX                // Avoids min/max macro conflicts
-    #define NOUSER                  // Prevents CloseWindow and ShowCursor
-    #include <winsock2.h>
-    #include <windows.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-#endif
 
-// Now safely include raylib and alias the Rectangle struct
 #include "raylib.h"
-using RLRectangle = Rectangle;
 
-// Your other includes
 #include "Parameters.h"
 #include "Player.h"
 #include "ObstacleLine.h"
@@ -29,7 +14,6 @@ using RLRectangle = Rectangle;
 #include <vector>
 #include <cstdint>
 
-
 // Function to convert hex color to Raylib's Color struct
 Color HexToColor(int hexValue) {
     Color color;
@@ -40,58 +24,11 @@ Color HexToColor(int hexValue) {
     return color;
 }
 
-// Server settings
-const char* SERVER_IP = "127.0.0.1";
-const int SERVER_PORT = 65432;
-
-// Establish a TCP connection to the server and return the socket
-SOCKET connect_to_server() {
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // Create TCP socket
-    sockaddr_in server_addr{};
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SERVER_PORT); // Convert port to network byte order
-    inet_pton(AF_INET, SERVER_IP, &server_addr.sin_addr); // Convert IP to binary
-
-    connect(sock, (sockaddr*)&server_addr, sizeof(server_addr)); // Connect to server
-    return sock;
-}
-
-// Send a single character request to the server (e.g., 'I' for check, 'S' for stream)
-void send_request(SOCKET sock, char request) {
-    send(sock, &request, 1, 0); // Send 1 byte (char)
-}
-
-// Receive a 1-byte response from the server
-char receive_response(SOCKET sock) {
-    char response;
-    recv(sock, &response, 1, 0); // Receive 1 byte
-    return response;
-}
-
-// Read a full buffer from the socket (used for reading full image data)
-bool receive_all(SOCKET sock, char* buffer, int size) {
-    int total = 0;
-    while (total < size) {
-        int received = recv(sock, buffer + total, size - total, 0); // Receive remaining bytes
-        if (received <= 0) return false; // If failed or connection closed
-        total += received;
-    }
-    return true;
-}
-
 int main(int argc, char* argv[]){
     srand(time(0));
     
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TriDash");
     InitAudioDevice();
-    WSADATA wsaData;
-    int wsaResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (wsaResult != 0) {
-        cout << "WSAStartup failed: " << wsaResult << endl;
-        return -1;
-    }
-    SOCKET socket; // Create connection
-    int sock_state = -1;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////// FILE LOADING //////////////////////////////////////////////////
@@ -209,13 +146,13 @@ int main(int argc, char* argv[]){
 
     float timer = TIME;
     int index = 0;
-    RLRectangle arena_source, score_source, game_mode_source;
-    //RLRectangle player_source = (RLRectangle){0, 0, (float)player_tex.width, (float)player_tex.height};
-    RLRectangle arena_dest = (RLRectangle){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    RLRectangle game_mode_dest = arena_dest;
-    RLRectangle normal_mode_dest = (RLRectangle){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-    RLRectangle score_dest = (RLRectangle){(float)SCREEN_WIDTH-score_tex.width, SCREEN_HEIGHT/20, (float)score_tex.width, (float)score_tex.height};
-    RLRectangle player_dest;
+    Rectangle arena_source, score_source, game_mode_source;
+    //Rectangle player_source = (Rectangle){0, 0, (float)player_tex.width, (float)player_tex.height};
+    Rectangle arena_dest = (Rectangle){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    Rectangle game_mode_dest = arena_dest;
+    Rectangle normal_mode_dest = (Rectangle){0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    Rectangle score_dest = (Rectangle){(float)SCREEN_WIDTH-score_tex.width, SCREEN_HEIGHT/20, (float)score_tex.width, (float)score_tex.height};
+    Rectangle player_dest;
 
     Player player(player_tex, player_state_tex);
     int current_score;
@@ -245,8 +182,8 @@ int main(int argc, char* argv[]){
         else if (game_state == 1) {
             // GAME (Normal Mode)
 
-            arena_source = (RLRectangle){0, 0, (float)arena_tex.width, (float)arena_tex.height};
-            score_source = (RLRectangle){0, 0, (float)score_tex.width, (float)score_tex.height};
+            arena_source = (Rectangle){0, 0, (float)arena_tex.width, (float)arena_tex.height};
+            score_source = (Rectangle){0, 0, (float)score_tex.width, (float)score_tex.height};
 
             BeginDrawing();
             ClearBackground(HexToColor(0x1E2329));
